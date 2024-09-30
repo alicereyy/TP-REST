@@ -177,7 +177,7 @@ paths:
       responses:
         "200":
           description: rate updated
-        "400":
+        "201":
           description: movie ID not found
   /moviesbydirector:
     get:
