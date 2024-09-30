@@ -31,7 +31,7 @@ def get_booking_for_user(userid):
             res = make_response(jsonify(booking["dates"]),200)
             return res
     return make_response(jsonify({"error":"User ID not found"}),400)
- 
+
 def write(bookings):
     with open('{}/databases/booking.json'.format("."), 'w') as f:
         json.dump({"bookings": bookings}, f)
