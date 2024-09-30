@@ -22,52 +22,56 @@ def get_json():
    res = make_response(jsonify(bookings), 200)
    return res
 
-# Return the bookin information by userid
-@app.route("/bookings/<userid>", methods=['GET'])
-def get_booking_for_user(userid):
-    for booking in bookings:
-        if str(booking["userid"]) == str(userid):
-            res = make_response(jsonify(booking["dates"]),200)
-            return res
-    return make_response(jsonify({"error":"User ID not found"}),400)
- 
-
-# Add a booking for a user 
-@app.route("/bookings/<userid>", methods=['POST'])
-def add_booking_byuser(userid):
-   req = request.get_json()
-   print(req)
-   for booking in bookings:
-        if str(booking["userid"]) == str(userid):
-         if req in booking["dates"]:
+@app.route("/bookings/<userid>", methods=['GET', 'POST'])
+def handle_booking_for_user(userid):
+   if request.method == 'GET': # get booking for user
+      user_bookings = []
+      for booking in bookings:
+         if str(booking["userid"]) == str(userid):
+            user_bookings.append(booking)
+      if user_bookings != []:
+         res = make_response(jsonify(user_bookings),200)
+         return res
+      else:
+         return make_response(jsonify({"error":"No booking found for this user ID"}),400)
+   
+   if request.method == 'POST': # add booking by user
+      req = request.get_json() # movie to book (date, movieid)
+      print(req)
+      if movie_exists(req["movies"], req["date"]): # if the movie is valid 
+         for booking in bookings:
+            if str(booking["userid"]) == str(userid):
+               for booked_movies in booking["dates"]:
+                  if booked_movies["date"] == req["date"]:
+                     for movie in booked_movies["movies"]: # check if movie is already booked by this user
+                        if movie == req["movies"]:
+                           return make_response(jsonify({"error":"movie is already booked"}),409)
+                     booked_movies["movies"].append(req["movies"])
+                     res = make_response(jsonify(booking),200)
+                     return res
+               nouvelle_date = {
+                  "date": req["date"],
+                  "movies": req["movies"]
+                  }
+               booking["dates"].append(nouvelle_date)
+               res = make_response(jsonify(booking), 200)
+      else:
+         return make_response(jsonify({"error":"this movie is not scheduled at this date"}),400)
             
-            return make_response(jsonify({"error":"this booking already exists"}),409)
-         booking["dates"].append(req)
-         write(bookings)
-         res = make_response(jsonify({"message":"booking added for the requested user"}) ,200)
-         return res   
-      
-def write(bookings):
-    with open('{}/databases/booking.json'.format("."), 'w') as f:
-        json.dump({"bookings": bookings}, f)
-'''
-# Method 2 Add a booking for a user 
-@app.route("/bookings/<userid>", methods=['POST'])
-def add_booking_byuser(userid):
-   req = request.get_json()
-   new_booking = {"date": req["date"], "movies": req["movies"]}
-   for booking in bookings:
-        if str(booking["userid"]) == str(userid):
-         for b in booking["dates"]:
-            if b["date"]==new_booking["date"]:
-               if b["movies"] in new_booking["movies"]:
-                  return make_response(jsonify({"error": "This booking already exists for the specified user"}), 409)
-         booking["dates"].append(req)
-         #write(bookings)
-         res = make_response(jsonify({"message":"booking added for the requested user"}) ,200)
-         return res  
-   return make_response(jsonify({"error": "User ID not found"}), 404) 
-'''
+
+
+
+def movie_exists(movieid, date):
+   '''checks if the movie exists at this date,
+   returns a boolean'''
+   address = 'http://192.168.1.52:3201/showmovies?' + date
+   schedule = requests.get(address) # get the schedule for this date 
+   for movie in schedule.movies:
+      if movie == movieid:
+         return True
+   return False
+
+
 
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))
