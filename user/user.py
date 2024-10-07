@@ -79,7 +79,7 @@ def get_movies_info_for_user_bookings(userid):
                booking_info['movies'].append(movie_info)
             movies_infos.append(booking_info)
                
-         res = make_response(jsonify(movies_infos))
+         res = make_response(jsonify(movies_infos), 200)
          return res
    return make_response(jsonify({"error": "This user does not exist in the users database"}), 400)
 
