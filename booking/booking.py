@@ -4,7 +4,6 @@ import json
 from werkzeug.exceptions import NotFound
 import sys
 
-
 app = Flask(__name__)
 
 PORT = 3201
@@ -68,8 +67,6 @@ def add_booking_byuser(userid):
          res = make_response(jsonify({"message":"booking added for the requested user"}) ,200)
          return res  
    return make_response(jsonify({"error": "User ID not found"}), 404) 
-
-
 
 # delete a booking for a user 
 @app.route("/bookings/<userid>", methods=['DELETE'])
