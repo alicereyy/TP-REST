@@ -80,10 +80,41 @@ def get_movies_info_for_user_bookings(userid):
                #print(movie_info)
                booking_info['movies'].append(movie_info)
             movies_infos.append(booking_info)
-               
          res = make_response(jsonify(movies_infos), 200)
          return res
    return make_response(jsonify({"error": "This user does not exist in the users database"}), 400)
+
+# Add a booking for a user 
+@app.route("/users/<userid>", methods=['POST'])
+def add_booking_for_user(userid):
+   req = request.get_json()
+   booking_to_add = {"date": req["date"], "movies": req["movies"]}
+
+   # Call the API of booking to add the booking
+   booking_url = f"http://127.0.0.1:3201/bookings/{userid}"
+   
+   response = requests.post(booking_url, json=booking_to_add)
+
+   if response.status_code == 200:
+      return make_response(jsonify({"message": "Booking added successfully"}), 200)
+   else:
+      return make_response(jsonify({"error": response.json().get('error')}), response.status_code)
+
+# Delete a booking for a user
+@app.route("/users/<userid>", methods=['DELETE'])
+def delete_booking_for_user(userid):
+   req = request.get_json()
+   booking_to_delete = {"date": req["date"], "movie": req["movie"]}
+   
+   # Call the API of booking to add the booking
+   booking_url = f"http://127.0.0.1:3201/bookings/{userid}"
+
+   response = requests.delete(booking_url, json=booking_to_delete)
+
+   if response.status_code == 200:
+      return make_response(jsonify({"message": "Booking deleted successfully"}), 200)
+   else:
+      return make_response(jsonify({"error": response.json().get('error')}), response.status_code)
 
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))
