@@ -66,6 +66,62 @@ paths:
           description: user does not have any booking
         "400":
           description: user does not exist in database
+    post:
+      tags:
+      - developers
+      summary: add a booking for a user 
+      operationId: add_booking_for_user
+      parameters:
+      - name: userid
+        in: path
+        description: userid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: item to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBooking'
+      responses:
+        "200":
+          description: booking added for this user
+        "400":
+          description: bad input parameter
+        "409":
+          description: an existing item already exists
+
+    delete:
+      tags:
+      - developers
+      summary: delete a booking for a user 
+      operationId: delete_booking_for_user
+      parameters:
+      - name: userid
+        in: path
+        description: userid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: item to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingToDelete'
+      responses:
+        "200":
+          description: booking added for this user
+        "400":
+          description: bad input parameter 
+        "404":
+          description: date or movie inexistant, so can't be deleted 
+
   /users/{userid}/{date}:
     get:
       tags:
@@ -213,3 +269,28 @@ components:
             items: 
               type: object
               $ref: '#/components/schemas/MovieItem'
+    NewBooking:
+      required:
+      - date
+      - movieid
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movieid:
+          type: string
+          example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+
+    BookingToDelete:
+      required:
+      - date
+      - movieid
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movieid:
+          type: string
+          example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
