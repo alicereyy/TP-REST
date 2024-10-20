@@ -19,6 +19,8 @@ def home():
 def get_json():
    res = make_response(jsonify(users), 200)
    return res
+
+
    
 # Returns all the booked movies of a user 
 @app.route("/users/<userid>", methods = ['GET'])
@@ -51,7 +53,7 @@ def get_booking_by_date_user(userid, date):
                booking_for_user = make_response(jsonify(user_booking),200)
                return booking_for_user
          return make_response(jsonify({"error": "there are no bookings on this date for this user"}), 409)
-   return make_response(jsonify({"error": "this user does not exist"}), 405)
+   return make_response(jsonify({"error": "this user does not exist"}), 400)
       
 # Returns all the booked movies' information of a user 
 @app.route("/users/movie_info/<userid>", methods = ['GET'])
@@ -60,7 +62,7 @@ def get_movies_info_for_user_bookings(userid):
    response = requests.get(bookings_url)
    
    if response.status_code != 200:
-      return make_response(jsonify({"error": "This user does not have anyyyy bookings"}), 404)
+      return make_response(jsonify({"error": "This user does not have any bookings"}), 404)
    user_bookings = response.json()
    
    for user in users:
