@@ -15,12 +15,11 @@ with open('{}/databases/users.json'.format("."), "r") as jsf:
 def home():
    return "<h1 style='color:blue'>Welcome to the User service!</h1>"
 
+#Returns all the users 
 @app.route("/users", methods = ['GET'])
 def get_json():
    res = make_response(jsonify(users), 200)
    return res
-
-
    
 # Returns all the booked movies of a user 
 @app.route("/users/<userid>", methods = ['GET'])
@@ -90,15 +89,12 @@ def add_booking_for_user(userid):
    req = request.get_json()
    booking_to_add = {"date": req["date"], "movies": req["movies"]}
 
-   # Call the API of booking to add the booking
+   # Call the API of booking to add the booking for the requested user
    booking_url = f"http://127.0.0.1:3201/bookings/{userid}"
    
    response = requests.post(booking_url, json=booking_to_add)
 
-   if response.status_code == 200:
-      return make_response(jsonify({"message": "Booking added successfully"}), 200)
-   else:
-      return make_response(jsonify({"error": response.json().get('error')}), response.status_code)
+   return (response.json())
 
 # Delete a booking for a user
 @app.route("/users/<userid>", methods=['DELETE'])
@@ -106,15 +102,13 @@ def delete_booking_for_user(userid):
    req = request.get_json()
    booking_to_delete = {"date": req["date"], "movie": req["movie"]}
    
-   # Call the API of booking to add the booking
+   # Call the API of booking to add the booking for the requested user
    booking_url = f"http://127.0.0.1:3201/bookings/{userid}"
 
    response = requests.delete(booking_url, json=booking_to_delete)
 
-   if response.status_code == 200:
-      return make_response(jsonify({"message": "Booking deleted successfully"}), 200)
-   else:
-      return make_response(jsonify({"error": response.json().get('error')}), response.status_code)
+   return (response.json())
+   
 
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))

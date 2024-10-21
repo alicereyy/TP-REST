@@ -6,7 +6,7 @@ from werkzeug.exceptions import NotFound
 app = Flask(__name__)
 
 PORT = 3200
-HOST = '0.0.0.0' # avce cette valeur va affecter tout seul l'adresse ip
+HOST = '0.0.0.0' # avec cette valeur va affecter tout seul l'adresse ip
 
 with open('{}/databases/movies.json'.format("."), 'r') as jsf:
    movies = json.load(jsf)["movies"]
@@ -26,6 +26,7 @@ def get_json():
     res = make_response(jsonify(movies), 200)
     return res
 
+# Get the movie by movie id 
 @app.route("/movies/<movieid>", methods=['GET'])
 def get_movie_byid(movieid):
     for movie in movies:
@@ -34,6 +35,7 @@ def get_movie_byid(movieid):
             return res
     return make_response(jsonify({"error":"Movie ID not found"}),400)
 
+# Get the movie by movie title 
 @app.route("/moviesbytitle", methods=['GET'])
 def get_movie_bytitle():
     json = ""
@@ -49,6 +51,7 @@ def get_movie_bytitle():
         res = make_response(jsonify(json),200)
     return res
 
+# Get the movies by director 
 @app.route("/moviesbydirector", methods=['GET'])
 def get_movie_bydirector():
     json = ""
@@ -64,6 +67,7 @@ def get_movie_bydirector():
         res = make_response(jsonify(json),200)
     return res
 
+# Get all the endpoints for this microservice
 @app.route("/help", methods=['GET'])
 def help():
     routes = []
@@ -71,11 +75,12 @@ def help():
         routes.append({
             'url': rule.rule,
             'endpoint':rule.endpoint,
-            'methods': list(rule.methods)
+            #'methods': list(rule.methods)
         })
     res = make_response(jsonify(routes),200)
     return res
 
+# Add a movie to the JSON file 
 @app.route("/addmovie/<movieid>", methods=['POST'])
 def add_movie(movieid):
     req = request.get_json()
@@ -86,13 +91,14 @@ def add_movie(movieid):
 
     movies.append(req)
     write(movies)
-    res = make_response(jsonify({"message":"movie added"}),200)
+    res = make_response(jsonify({"message":"movie successfully added"}),200)
     return res
 
 def write(movies):
     with open('{}/databases/movies.json'.format("."), 'w') as f:
         json.dump({"movies":movies}, f)
 
+# Modify the rating of a movie
 @app.route("/movies/<movieid>/<rate>", methods=['PUT'])
 def update_movie_rating(movieid, rate):
     for movie in movies:
@@ -104,12 +110,14 @@ def update_movie_rating(movieid, rate):
     res = make_response(jsonify({"error":"movie ID not found"}),201)
     return res
 
+# Delete a movie from the json file 
 @app.route("/movies/<movieid>", methods=['DELETE'])
 def del_movie(movieid):
     for movie in movies:
         if str(movie["id"]) == str(movieid):
             movies.remove(movie)
-            return make_response(jsonify(movie),200)
+            res = make_response(jsonify({"message":"movie successfully deleted"}),200)
+            return res
 
     res = make_response(jsonify({"error":"movie ID not found"}),400)
     return res

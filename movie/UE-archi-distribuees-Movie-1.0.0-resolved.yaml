@@ -106,7 +106,7 @@ paths:
       tags:
       - admins
       summary: delete a movie item
-      description: Adds a movie to the system
+      description: deletes a movie from the system
       operationId: del_movie
       parameters:
       - name: movieid

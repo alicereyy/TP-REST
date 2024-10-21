@@ -12,7 +12,7 @@ HOST = '0.0.0.0'
 with open('{}/databases/bookings.json'.format("."), "r") as jsf:
    bookings = json.load(jsf)["bookings"]
    
- 
+# Bookings welcome page 
 @app.route("/", methods=['GET'])
 def home():
    return "<h1 style='color:blue'>Welcome to the Booking service!</h1>"
@@ -23,14 +23,14 @@ def get_json():
    res = make_response(jsonify(bookings), 200)
    return res
 
-# Return the bookin information by userid
+# Return the booking by userid
 @app.route("/bookings/<userid>", methods=['GET'])
 def get_booking_for_user(userid):
-    for booking in bookings:
-        if str(booking["userid"]) == str(userid):
-            res = make_response(jsonify(booking["dates"]),200)
-            return res
-    return make_response(jsonify({"error":"User ID not found"}),400)
+   for booking in bookings:
+      if str(booking["userid"]) == str(userid):
+         res = make_response(jsonify(booking["dates"]),200)
+         return res
+   return make_response(jsonify({"error":"User ID not found"}),400)
 
 def write(bookings):
     with open('{}/databases/booking.json'.format("."), 'w') as f:
@@ -62,7 +62,8 @@ def add_booking_byuser(userid):
                   return make_response(jsonify({"error": "This booking already exists for the specified user"}), 409)
                else :
                   b["movies"].append(new_booking["movies"])
-         booking["dates"].append(req)
+         # Add the brackets for b["movies"] otherwise we won't have the right format in the json file 
+         booking["dates"].append({"date": new_booking["date"], "movies": [new_booking["movies"]]})
          write(bookings)
          res = make_response(jsonify({"message":"booking added for the requested user"}) ,200)
          return res  
