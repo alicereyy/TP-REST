@@ -20,4 +20,4 @@ C'est le micro-service qui sert de point d’entrée à tout utilisateur et qui 
 - activer l'environnement virtuel (ou installer les requirements avec 'pip install -r requirements.txt')
 - avec Python, run en parallèle les fichiers user.py, booking.py, showtimes.py et movie.py qui se trouvent respectivement dans les dossiers user, booking, showtime et movie
 
-Il est possible de tester l'application avec Postman ou équivalent. 
+Il est possible de tester l'application avec Postman ou équivalent. Le point d'entrée utilisateur est le micro-service User. Pour tester ses fonctionnalités, faire des requètes http avec l'url du serveur local et les routes spécifiées dans le fichier user.py.
