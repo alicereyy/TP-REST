@@ -106,7 +106,7 @@ paths:
       tags:
       - admins
       summary: delete a movie item
-      description: Adds a movie to the system
+      description: deletes a movie from the system
       operationId: del_movie
       parameters:
       - name: movieid
@@ -177,7 +177,7 @@ paths:
       responses:
         "200":
           description: rate updated
-        "400":
+        "201":
           description: movie ID not found
   /moviesbydirector:
     get:

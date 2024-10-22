@@ -1,0 +1,296 @@
+---
+openapi: 3.0.3
+info:
+  title: User API
+  description: This is the API of the User service
+  license:
+    name: GPL v3
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+  version: 1.0.0
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /:
+    get:
+      tags:
+      - developers
+      summary: home page of the service
+      operationId: home
+      responses:
+        "200":
+          description: welcome message
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <h1>Test</h1>
+  /users:
+    get:
+      tags:
+      - developers
+      summary: get the full JSON database
+      operationId: get_json
+      responses:
+        "200":
+          description: full JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllUsers'
+  /users/{userid}:
+    get:
+      tags:
+      - developers
+      summary: get all the booked movies for a user
+      operationId: get_booking_for_userid
+      parameters:
+      - name: userid
+        in: path
+        description: userid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Bookings of the user on the chosen date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingsUser'
+        "404":
+          description: user does not have any booking
+        "400":
+          description: user does not exist in database
+    post:
+      tags:
+      - developers
+      summary: add a booking for a user 
+      operationId: add_booking_for_user
+      parameters:
+      - name: userid
+        in: path
+        description: userid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: item to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBooking'
+      responses:
+        "200":
+          description: booking added for this user
+        "400":
+          description: bad input parameter
+        "409":
+          description: an existing item already exists
+
+    delete:
+      tags:
+      - developers
+      summary: delete a booking for a user 
+      operationId: delete_booking_for_user
+      parameters:
+      - name: userid
+        in: path
+        description: userid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: item to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingToDelete'
+      responses:
+        "200":
+          description: booking added for this user
+        "400":
+          description: bad input parameter 
+        "404":
+          description: date or movie inexistant, so can't be deleted 
+
+  /users/{userid}/{date}:
+    get:
+      tags:
+      - developers
+      summary: get all the booked movies for a user on a chosen date
+      operationId: get_booking_by_date_user
+      parameters:
+      - name: userid
+        in: path
+        description: userid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: date
+        in: path
+        description: date
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Bookings of the user on the chosen date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DateItem'
+        "404":
+          description: user does not have any booking
+        "405":
+          description: user does not exist
+        "409":
+          description: no bookings on this date for this user
+        #"400":
+        #  description: user does not exist in database
+        # remplacer 405 par 400 ?
+  /users/movie_info/{userid}:
+    get:
+      tags:
+      - developers
+      summary: get all the booked movies for a user
+      operationId: get_movies_info_for_user_bookings
+      parameters:
+      - name: userid
+        in: path
+        description: userid
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Information on the movies booked by the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoviesInfo'
+        "404":
+          description: user does not have any booking
+        "400":
+          description: user does not exist in database
+components:
+  schemas:
+    AllUsers:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+    User:
+      required:
+      - id
+      - name
+      - last_active
+      type: object
+      properties:
+        id:
+          type: string
+          example: "chris_rivers"
+        name:
+          type: string
+          example: "Chris Rivers"
+        last_active:
+          type: integer
+          example: 1360031010
+    BookingsUser:
+      required:
+      - dates
+      - userid
+      type: object
+      properties:
+        userid:
+          type: string
+          example: chris_rivers
+        dates:
+          type: array
+          items:
+            $ref: '#/components/schemas/DateItem'
+    DateItem:
+      required:
+      - date
+      - movies
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movies:
+          type: array
+          items:
+            type: string
+            example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+    MovieItem:
+      type: object
+      required:
+        - title
+        - rating
+        - director
+        - id
+      properties:
+        title:
+          type: string
+          example: The Martian
+        rating:
+          type: integer
+          example: 7
+        director:
+          type: string
+          example: Paul McGuigan
+        id:
+          type: string
+          example: 39ab85e5-5e8e-4dc5-afea-65dc368bd7ab
+    MoviesInfo:
+      type: array
+      items:
+        type: object
+        properties:
+          date:
+            type: string
+            example: "20151201"
+          movies:
+            type: array
+            items: 
+              type: object
+              $ref: '#/components/schemas/MovieItem'
+    NewBooking:
+      required:
+      - date
+      - movieid
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movieid:
+          type: string
+          example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+
+    BookingToDelete:
+      required:
+      - date
+      - movieid
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movieid:
+          type: string
+          example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
