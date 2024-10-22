@@ -14,6 +14,14 @@ C'est le micro-service responsable de la réservation des films par les utilisat
 ### User
 C'est le micro-service qui sert de point d’entrée à tout utilisateur et qui permet ensuite de récupérer des informations sur les films, sur les créneaux disponibles et de réserver. Il contient et gère une petite base de données json avec la liste des utilisateurs. User fait appel à Booking et Movie pour respectivement permettre aux utilisateurs de réserver un film ou d’obtenir des informations sur les films.
 
+## Fonctionnalités 
+Le point d'entrée utilisateur est le micro-service User. Les fonctionnalités disponibles dans le service User sont:
+- get all users (no parameter)
+- get booked movies for a user (parameter in url: user id)
+- get booked movies for a user with movie information (parameter in url: user id)
+- get booked movies of a user on the chosen date (parameters in url: user id, date)
+- add a booking to a user (parameter in url: user id) (json request: date, movie id)
+- delete a booking for a user (parameter in url: user id) (json request: date, movie id)
 
 ## Lancer l'application
 - télécharger le projet
