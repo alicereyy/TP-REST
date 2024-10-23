@@ -102,13 +102,74 @@ def delete_booking_for_user(userid):
    req = request.get_json()
    booking_to_delete = {"date": req["date"], "movie": req["movie"]}
    
-   # Call the API of booking to add the booking for the requested user
+   # Call the API of booking to delete the booking for the requested user
    booking_url = f"http://127.0.0.1:3201/bookings/{userid}"
 
    response = requests.delete(booking_url, json=booking_to_delete)
 
    return (response.json())
+
+# Get movies available on a date
+@app.route("/users/movies/<date>", methods=['GET'])
+def get_movies_on_date(date):
+   # We cannot directly write this because users shouldn't access showtime directly
+   #showtimes_url= f"http://127.0.0.1:3202/showmovies/{date}"
+   #showtimes_response = requests.get(showtimes_url)
    
+   # We have to go through booking 
+   booking_response = requests.get(f'http://127.0.0.1:3201/bookings/available_movies/{date}')
+   
+   if booking_response.status_code != 200:
+      return make_response(jsonify({"message": "No movies on this date"}), 400)
+
+   response = booking_response.json()
+   if not response.get("movies"):
+      return make_response(jsonify({"message": "No movies on this date"}), 400)
+   
+   
+   movie_info = []
+   for movieid in response["movies"]:
+      # Call the movie service to get the movie info 
+      movie_response = requests.get(f'http://127.0.0.1:3200/movies/{movieid}')
+
+      if movie_response.status_code == 200:
+         movie_info.append(movie_response.json())  
+      else:
+         return {"message": f"Movie with id {movieid} not found"}
+
+   date_movies = {
+      "date": date,
+      "movies": movie_info
+   }
+   return make_response(jsonify(date_movies), 200)
+
+# Get the showdates of a movie
+@app.route("/users/schedule/title", methods=['GET'])
+def get_dates_with_title():
+   
+   req = request.get_json()
+   title = req.get('title')
+
+   # Get movie information from the title (pass the movie title as a parameter)
+   movie_response = requests.get(f'http://127.0.0.1:3200/moviesbytitle?title={title}')
+   if not movie_response:
+      return make_response(jsonify({"message": "Movie title not found in database"}), 400)
+   # Get the movie id from the movie information
+   movieid = movie_response.json().get('id')
+
+   # Get the dates available for the chosen movie 
+   booking_response = requests.get(f'http://127.0.0.1:3201/bookings/dates/{movieid}')
+
+   if booking_response.status_code != 200:
+      return make_response(jsonify({"message": "No available dates for this movie"}), 400)
+
+   response = booking_response.json()
+
+   movie_dates = {
+      "movie": movieid,
+      "dates": response['dates']
+   }
+   return make_response(jsonify(movie_dates), 200)
 
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))

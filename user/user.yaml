@@ -154,13 +154,11 @@ paths:
                 $ref: '#/components/schemas/DateItem'
         "404":
           description: user does not have any booking
-        "405":
+        "400":
           description: user does not exist
         "409":
           description: no bookings on this date for this user
-        #"400":
-        #  description: user does not exist in database
-        # remplacer 405 par 400 ?
+        
   /users/movie_info/{userid}:
     get:
       tags:
@@ -187,6 +185,50 @@ paths:
           description: user does not have any booking
         "400":
           description: user does not exist in database
+  /users/available_movies/{date}:
+    get:
+      summary: Get movies available on a selected date
+      operationId: get_movies_on_date
+      parameters:
+        - in: path
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "20151130"
+      responses:
+        "200":
+          description: List of movies available on the specified date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoviesDetails'
+        "400":
+          description: no movies available on this date 
+
+  /users/schedule/title:
+    get:
+      summary: get the available movies on a given date 
+      operationId: get_dates_with_title
+      parameters:
+        - name: title
+          in: query
+          required: true
+          description: the title of the movie 
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of movies available on the specified date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoviesDates'
+        "400":
+          description: no movies available on this date
+
+          
 components:
   schemas:
     AllUsers:
@@ -236,6 +278,20 @@ components:
           items:
             type: string
             example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+    MoviesDetails:
+      required:
+      - date
+      - movies
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movies:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/MovieItem' 
     MovieItem:
       type: object
       required:
@@ -294,3 +350,17 @@ components:
         movieid:
           type: string
           example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+
+    MoviesDates:
+      required:
+      - dates
+      - movieid
+      type: object
+      properties:
+        dates:
+          type: array
+          example: ["20151201", "20151203"]
+        movieid:
+          type: string
+          example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+    

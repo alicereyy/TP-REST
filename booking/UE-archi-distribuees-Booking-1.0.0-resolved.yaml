@@ -101,35 +101,77 @@ paths:
           description: an existing item already exists
 
 
-delete:
-      tags:
-      - admins
-      summary: delete a booking for a user
-      description: deletes a booking for the user
-      operationId: delete_booking_for_user
-      parameters:
-      - name: userid
-        in: path
-        description: User ID.
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
-      requestBody:
-        description: item to delete
-        content:
-          application/json:
+    delete:
+          tags:
+          - admins
+          summary: delete a booking for a user
+          operationId: delete_booking_for_user
+          parameters:
+          - name: userid
+            in: path
+            description: User ID.
+            required: true
+            style: simple
+            explode: false
             schema:
-              $ref: '#/components/schemas/MovieToDelete'
+              type: string
+          requestBody:
+            description: item to delete
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/MovieToDelete'
+          responses:
+            "200":
+              description: Booking deleted
+            "400":
+              description: bad input parameter 
+            "404":
+              description: date or movie inexistant, so can't be deleted 
+  
+  /bookings/available_movies/{date}:
+    get:
+      summary: Get available movies for a given date
+      operationId: get_bookings_by_date
+      parameters:
+        - in: path
+          name: date
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "20151130"
       responses:
         "200":
-          description: Booking deleted
+          description: List of movies available on the specified date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoviesDetails'
         "400":
-          description: bad input parameter 
-        "404":
-          description: date or movie inexistant, so can't be deleted 
-
+          description: no movies available on this date 
+  /bookings/dates/{movieid}:
+    get:
+      summary: Returns the available dates for a movie 
+      operationId: get_dates_for_movie
+      parameters:
+        - name: movieid
+          in: path
+          required: true
+          description: id of movie 
+          schema:
+            type: string
+      responses:
+        '200':
+          description: list of showtimes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: no showtimes available for this movie
 
 components:
   schemas:
@@ -164,6 +206,40 @@ components:
           items:
             type: string
             example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+    MoviesDetails:
+      required:
+      - date
+      - movies
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151201"
+        movies:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/MovieItem'
+    MovieItem:
+      type: object
+      required:
+        - title
+        - rating
+        - director
+        - id
+      properties:
+        title:
+          type: string
+          example: The Martian
+        rating:
+          type: integer
+          example: 7
+        director:
+          type: string
+          example: Paul McGuigan
+        id:
+          type: string
+          example: 39ab85e5-5e8e-4dc5-afea-65dc368bd7ab
     NewMovie:
       required:
       - date

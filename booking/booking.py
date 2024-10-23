@@ -62,7 +62,7 @@ def add_booking_byuser(userid):
                   return make_response(jsonify({"error": "This booking already exists for the specified user"}), 409)
                else :
                   b["movies"].append(new_booking["movies"])
-         # Add the brackets for b["movies"] otherwise we won't have the right format in the json file 
+         # Add the brackets for new_booking["movies"] otherwise we won't have the right format in the json file 
          booking["dates"].append({"date": new_booking["date"], "movies": [new_booking["movies"]]})
          write(bookings)
          res = make_response(jsonify({"message":"booking added for the requested user"}) ,200)
@@ -90,6 +90,32 @@ def delete_booking_for_user(userid):
                return make_response(jsonify({"message":"this movie is not booked on this date so it can't be deleted"}), 404)
          return make_response(jsonify({"message":"this booking does not exist so it can't be deleted"}), 404)
    return make_response(jsonify({"error": "User ID not found"}), 400) 
+
+# Get the available movies on a given date 
+@app.route("/bookings/available_movies/<date>", methods=['GET'])
+def get_bookings_by_date(date):
+      showtimes_url= f"http://127.0.0.1:3202/showmovies/{date}"
+      showtimes_response = requests.get(showtimes_url)
+
+      if showtimes_response.status_code != 200:
+         return make_response(jsonify({"message": "Failed to extract showtimes for the given date"}), 400)
+      return make_response(jsonify(showtimes_response.json()), 200)
+
+# Get available dates for a movie
+@app.route("/bookings/dates/<movieid>", methods=['GET'])
+def get_dates_for_movie(movieid):
+   # Request showtime
+   showtime_response = requests.get(f'http://127.0.0.1:3202/showtimes/dates/{movieid}')
+
+   if showtime_response.status_code != 200:
+      return make_response(jsonify({"message": "Failed to retrieve dates for the given movie"}), 400)
+
+   response = showtime_response.json()
+
+   if not response:
+      return make_response(jsonify({"message": "No available dates for this movie"}), 400)
+
+   return make_response(jsonify({"dates": response}), 200)
 
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))

@@ -28,7 +28,18 @@ def get_movies_bydate(date):
          res = make_response(jsonify(show), 200)
          return res
    return make_response(jsonify({"error": "showdate not found"}), 400)
-         
+
+# Return the available showtimes for a chosen movie
+@app.route("/showtimes/dates/<movieid>", methods=['GET'])
+def get_dates_for_movie(movieid):
+   dates=[]
+   for show in schedule:
+      if str(movieid) in show["movies"] :
+         dates.append(show["date"])
+   if not dates :
+      return make_response(jsonify({"Message": "no showtimes available for this movie"}), 400)
+   return make_response(jsonify(dates), 200)
+
 if __name__ == "__main__":
    print("Server running in port %s"%(PORT))
    app.run(host=HOST, port=PORT)

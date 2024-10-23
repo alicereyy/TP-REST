@@ -66,6 +66,29 @@ paths:
                 $ref: '#/components/schemas/Schedule'
         "400":
           description: bad input parameter
+  
+  /showtimes/dates/{movieid}:
+    get:
+      summary: Returns the showtimes of the movie
+      operationId: get_dates_for_movie
+      parameters:
+        - name: movieid
+          in: path
+          required: true
+          description: id of the movie
+          schema:
+            type: string
+      responses:
+        '200':
+          description: list of showtimes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: no showtimes available for this movie
 components:
   schemas:
     AllSchedule:
