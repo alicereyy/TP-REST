@@ -22,6 +22,10 @@ Le point d'entrée utilisateur est le micro-service User. Les fonctionnalités d
 - get booked movies of a user on the chosen date (parameters in url: user id, date)
 - add a booking to a user (parameter in url: user id) (json request: date, movie id)
 - delete a booking for a user (parameter in url: user id) (json request: date, movie id)
+- get available movies on date, with movie information (parameter in url: date)
+- get dates from movie title (json request: movie title)
+
+Par ailleurs, la date de dernière utilisation d'un utilisateur est actualisée lors de l'appel de méthodes qui prennent en paramètre le user id.
 
 ## Lancer l'application
 - télécharger le projet
